@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
               {isAuthenticated ? (
                 <>
                   <Link href="/" className="hover:text-blue-200">
-                    Dashboard
+                    Home
                   </Link>
                   <span className="text-blue-300">{user?.email}</span>
                   <button
