@@ -36,11 +36,11 @@ const Navbar: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Link href="/auth/login" className="hover:text-blue-200">
+                  <Link href="/components/auth/login" className="hover:text-blue-200">
                     Login
                   </Link>
                   <Link
-                    href="/auth/register"
+                    href="/components/auth/register"
                     className="bg-blue-700 hover:bg-blue-800 px-3 py-1 rounded"
                   >
                     Register
@@ -101,14 +101,14 @@ const Navbar: React.FC = () => {
             ) : (
               <>
                 <Link
-                  href="/auth/login"
+                  href="/components/auth/login"
                   className="block px-3 py-2 rounded hover:bg-blue-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Login
                 </Link>
                 <Link
-                  href="/auth/register"
+                  href="/components/auth/register"
                   className="block px-3 py-2 rounded bg-blue-700 hover:bg-blue-800"
                   onClick={() => setIsMenuOpen(false)}
                 >
