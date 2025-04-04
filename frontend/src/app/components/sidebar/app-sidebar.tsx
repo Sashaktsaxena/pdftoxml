@@ -54,7 +54,7 @@ const SidebarTriggerArea = () => {
 
 export function AppSidebar({ conversions, onSelect, selectedId, loading, username = "User" }: AppSidebarProps) {
   const sidebarRef = useRef<HTMLDivElement>(null)
-  const { open, setOpen, state } = useSidebar()
+  const { setOpen, state } = useSidebar() // Removed unused 'open' variable
   const isMobile = useIsMobile()
   const [filteredConversions, setFilteredConversions] = useState<Conversion[]>(conversions)
   const isCollapsed = state === "collapsed"
@@ -197,4 +197,3 @@ export function AppSidebar({ conversions, onSelect, selectedId, loading, usernam
     </>
   )
 }
-

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { ArrowRight, FileText, Lock, History, LayoutGrid } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Footer from "./components/ui/footer"
-import Navbar from "./components/ui/Navbar"
+
 
 export default function Home() {
   const { isAuthenticated } = useAuth()

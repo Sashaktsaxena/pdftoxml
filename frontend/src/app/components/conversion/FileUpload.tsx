@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import api from "../../lib/api"
-import { useRouter } from "next/navigation"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,6 +17,15 @@ interface FileUploadProps {
   onUploadSuccess: (conversionId: string) => void
 }
 
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string
+    }
+  }
+  message?: string
+}
+
 const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
   const [file, setFile] = useState<File | null>(null)
   const [structureLevel, setStructureLevel] = useState<"basic" | "advanced">("basic")
@@ -24,7 +33,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
   const [error, setError] = useState("")
   const [progress, setProgress] = useState(0)
   const { token } = useAuth()
-  const router = useRouter()
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -73,9 +82,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
       })
 
       onUploadSuccess(response.data._id)
-    } catch (err: any) {
-      console.error("Upload error:", err)
-      setError(err.response?.data?.message || "Upload failed")
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      console.error('Error loading user:', err.message || 'Authentication failed');
     } finally {
       setLoading(false)
     }
@@ -181,4 +190,3 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
 }
 
 export default FileUpload
-

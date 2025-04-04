@@ -4,6 +4,16 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import Link from 'next/link';
 
+// Define an error interface
+interface AuthError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
 const RegisterForm: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -27,8 +37,10 @@ const RegisterForm: React.FC = () => {
     
     try {
       await register(email, password, name);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+    } catch (err: unknown) {
+      // Type cast the error to our AuthError interface
+      const authError = err as AuthError;
+      setError(authError.response?.data?.message || authError.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -113,7 +125,7 @@ const RegisterForm: React.FC = () => {
       <div className="mt-4 text-center">
         <p>
           Already have an account?{' '}
-          <Link href="/auth/login" className="text-blue-500">
+          <Link href="/components/auth/login" className="text-blue-500">
             Login
           </Link>
         </p>

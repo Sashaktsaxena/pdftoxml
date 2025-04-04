@@ -23,7 +23,7 @@ const Navbar: React.FC = () => {
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
                 <>
-                  <Link href="/dashboard" className="hover:text-blue-200">
+                  <Link href="/" className="hover:text-blue-200">
                     Dashboard
                   </Link>
                   <span className="text-blue-300">{user?.email}</span>

@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { AppSidebar } from '../components/sidebar/app-sidebar';
+
 import { SidebarProvider, SidebarTrigger, SidebarInset, SidebarRail } from '@/components/ui/sidebar';
 import { Menu } from 'lucide-react';
 
@@ -15,8 +15,7 @@ export default function ProfilePage() {
   const [name, setName] = useState(user?.name || '');
   const [updateLoading, setUpdateLoading] = useState(false);
   const [updateError, setUpdateError] = useState('');
-  const [conversions, setConversions] = useState([]);
-  const [loadingData, setLoadingData] = useState(false);
+
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -26,53 +25,31 @@ export default function ProfilePage() {
     if (user?.name) {
       setName(user.name);
     }
-    if (token) {
-      fetchConversions();
-    }
+
   }, [user, loading, router, token]);
 
-  // const fetchConversions = async () => {
-  //   setLoadingData(true);
-  //   try {
-  //     const response = await fetch('/api/conversions', {
-  //       headers: {
-  //         'x-auth-token': token,
-  //       },
-  //     });
-  //     const data = await response.json();
-  //     setConversions(data);
-  //   } catch (err) {
-  //     console.error('Failed to fetch conversions', err);
-  //   } finally {
-  //     setLoadingData(false);
-  //   }
-  // };
 
-  const handleConversionSelect = (conversionId) => {
-    // Navigate to dashboard with the selected conversion
-    router.push(`/dashboard?conversion=${conversionId}`);
-  };
-
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    setUpdateLoading(true);
-    setUpdateError('');
+// Add type for the event parameter
+const handleUpdateProfile = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setUpdateLoading(true);
+  setUpdateError('');
+  
+  try {
+    // This would typically be an API call to update the user's profile
+    // await api.put('/users/profile', { name });
     
-    try {
-      // This would typically be an API call to update the user's profile
-      // await api.put('/users/profile', { name });
-      
-      // For now, we'll just simulate the update
-      setTimeout(() => {
-        setIsEditing(false);
-        setUpdateLoading(false);
-      }, 1000);
-    } catch (err) {
-      setUpdateError('Failed to update profile');
+    // For now, we'll just simulate the update
+    setTimeout(() => {
+      setIsEditing(false);
       setUpdateLoading(false);
-    }
-  };
-
+    }, 1000);
+  } catch (error) {
+    setUpdateError('Failed to update profile');
+    setUpdateLoading(false);
+    console.error('Update profile error:', error);
+  }
+};
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -91,13 +68,13 @@ export default function ProfilePage() {
   return (
     <SidebarProvider defaultOpen={false}>
       <div className="flex min-h-screen bg-[hsl(var(--background))]">
-        <AppSidebar
+        {/* <AppSidebar
           conversions={conversions}
           onSelect={handleConversionSelect}
           selectedId={null}
           loading={loadingData}
           username={user?.name || "User"}
-        />
+        /> */}
 
         <SidebarInset className="transition-all duration-300 ease-in-out bg-[hsl(var(--background))]">
           <div className="p-6 w-full">

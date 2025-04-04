@@ -1,9 +1,18 @@
-// app/components/auth/LoginForm.tsx
 'use client';
 
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import Link from 'next/link';
+
+// Define an error interface
+interface AuthError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -19,8 +28,10 @@ const LoginForm: React.FC = () => {
 
     try {
       await login(email, password);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+    } catch (err: unknown) {
+      // Type cast the error to our AuthError interface
+      const authError = err as AuthError;
+      setError(authError.response?.data?.message || authError.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -77,7 +88,7 @@ const LoginForm: React.FC = () => {
       <div className="mt-4 text-center">
         <p>
           Don&apos;t have an account?{' '}
-          <Link href="/auth/register" className="text-blue-500">
+          <Link href="/components/auth/register" className="text-blue-500">
             Register
           </Link>
         </p>

@@ -1,4 +1,3 @@
-// app/contexts/AuthContext.tsx
 'use client';
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
@@ -19,6 +18,15 @@ interface AuthContextType {
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+}
+
+interface ApiError {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,7 +57,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       setUser(res.data);
       setLoading(false);
-    } catch (err) {
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      console.error('Error loading user:', err.message || 'Authentication failed');
       localStorage.removeItem('token');
       setToken(null);
       setUser(null);
@@ -64,8 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(res.data.token);
       await loadUser(res.data.token);
       router.push('/dashboard');
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -76,8 +86,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(res.data.token);
       await loadUser(res.data.token);
       router.push('/dashboard');
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -85,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
-    router.push('/');
+    window.location.href = '/';
   };
 
   return (
