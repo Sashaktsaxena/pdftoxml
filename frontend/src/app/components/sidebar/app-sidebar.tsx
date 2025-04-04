@@ -1,7 +1,6 @@
 "use client"
-import React from "react"
-import { useRef, useState } from "react"
-import { FileText, Home, Plus, Settings, User } from "lucide-react"
+import { useRef, useState, useEffect } from "react"
+import { FileText, Home, Settings, User } from "lucide-react"
 import Link from "next/link"
 import {
   Sidebar,
@@ -18,8 +17,7 @@ import {
   SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useIsMobile } from "@/hooks/use-mobile"
 import ConversionSearch from "../conversion/ConversionSearch"
 
@@ -56,9 +54,10 @@ const SidebarTriggerArea = () => {
 
 export function AppSidebar({ conversions, onSelect, selectedId, loading, username = "User" }: AppSidebarProps) {
   const sidebarRef = useRef<HTMLDivElement>(null)
-  const { open, setOpen } = useSidebar()
+  const { open, setOpen, state } = useSidebar()
   const isMobile = useIsMobile()
   const [filteredConversions, setFilteredConversions] = useState<Conversion[]>(conversions)
+  const isCollapsed = state === "collapsed"
 
   // Handle mouse events for desktop
   const handleMouseEnter = () => {
@@ -74,15 +73,15 @@ export function AppSidebar({ conversions, onSelect, selectedId, loading, usernam
     if (!searchTerm.trim()) {
       setFilteredConversions(conversions)
     } else {
-      const filtered = conversions.filter(conversion => 
-        conversion.originalFilename.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = conversions.filter((conversion) =>
+        conversion.originalFilename.toLowerCase().includes(searchTerm.toLowerCase()),
       )
       setFilteredConversions(filtered)
     }
   }
 
   // Update filtered conversions when the original list changes
-  React.useEffect(() => {
+  useEffect(() => {
     setFilteredConversions(conversions)
   }, [conversions])
 
@@ -90,27 +89,29 @@ export function AppSidebar({ conversions, onSelect, selectedId, loading, usernam
     <>
       <SidebarTriggerArea />
       <div ref={sidebarRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="h-full">
-        <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} variant="sidebar" className="bg-[hsl(var(--sidebar-background))]">
+        <Sidebar
+          collapsible={isMobile ? "offcanvas" : "icon"}
+          variant="sidebar"
+          className="bg-[hsl(var(--sidebar-background))]"
+        >
           <SidebarHeader>
             <div className="flex items-center gap-2 px-2 py-3">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" alt={username} />
                 <AvatarFallback>{username.charAt(0)}</AvatarFallback>
               </Avatar>
-              <div className="flex flex-col">
-                {/* <span className="text-sm font-medium">{username}</span> */}
-                {/* <span className="text-xs text-muted-foreground">PDF to XML Converter</span> */}
+              <div className={`flex flex-col ${isCollapsed ? "opacity-0 w-0" : ""} transition-all duration-200`}>
+                <span className="text-sm font-medium truncate">{username}</span>
               </div>
             </div>
           </SidebarHeader>
           <SidebarSeparator />
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+              <SidebarGroupLabel className={isCollapsed ? "sr-only" : ""}>Navigation</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild tooltip="Dashboard">
+                    <SidebarMenuButton asChild tooltip="Home">
                       <Link href="/">
                         <Home className="h-4 w-4" />
                         <span>Home</span>
@@ -118,7 +119,7 @@ export function AppSidebar({ conversions, onSelect, selectedId, loading, usernam
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild tooltip="Settings">
+                    <SidebarMenuButton asChild tooltip="Dashboard">
                       <Link href="/dashboard">
                         <Settings className="h-4 w-4" />
                         <span>Dashboard</span>
@@ -138,7 +139,7 @@ export function AppSidebar({ conversions, onSelect, selectedId, loading, usernam
             </SidebarGroup>
             <SidebarSeparator />
             <SidebarGroup>
-              <SidebarGroupLabel>Recent Conversions</SidebarGroupLabel>
+              <SidebarGroupLabel className={isCollapsed ? "sr-only" : ""}>Recent Conversions</SidebarGroupLabel>
               <ConversionSearch onSearch={handleSearch} />
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -155,7 +156,7 @@ export function AppSidebar({ conversions, onSelect, selectedId, loading, usernam
                       ))
                   ) : filteredConversions.length === 0 ? (
                     <SidebarMenuItem>
-                      <div className="p-2 text-sm text-muted-foreground">
+                      <div className={`p-2 text-sm text-muted-foreground ${isCollapsed ? "hidden" : ""}`}>
                         {conversions.length === 0 ? "No conversions yet" : "No matching conversions"}
                       </div>
                     </SidebarMenuItem>
@@ -167,19 +168,21 @@ export function AppSidebar({ conversions, onSelect, selectedId, loading, usernam
                           onClick={() => onSelect(conversion._id)}
                           tooltip={conversion.originalFilename}
                         >
-                          <FileText className="h-4 w-4" />
+                          <FileText className="h-4 w-4 flex-shrink-0" />
                           <span className="truncate">{conversion.originalFilename}</span>
-                          <SidebarMenuBadge
-                            className={`${
-                              conversion.status === "completed"
-                                ? "bg-green-100 text-green-800"
-                                : conversion.status === "processing"
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {conversion.status}
-                          </SidebarMenuBadge>
+                          {!isCollapsed && (
+                            <SidebarMenuBadge
+                              className={`${
+                                conversion.status === "completed"
+                                  ? "bg-green-100 text-green-800"
+                                  : conversion.status === "processing"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                              } text-xs whitespace-nowrap`}
+                            >
+                              {conversion.status}
+                            </SidebarMenuBadge>
+                          )}
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))
@@ -188,16 +191,10 @@ export function AppSidebar({ conversions, onSelect, selectedId, loading, usernam
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter>
-            {/* <div className="p-2">
-              <Button className="w-full" size="sm">
-                <Plus className="mr-2 h-4 w-4" />
-                New Conversion
-              </Button>
-            </div> */}
-          </SidebarFooter>
+          <SidebarFooter>{/* Footer content if needed */}</SidebarFooter>
         </Sidebar>
       </div>
     </>
   )
 }
+

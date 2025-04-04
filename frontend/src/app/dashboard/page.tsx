@@ -10,7 +10,7 @@ import api from "../lib/api"
 import { AppSidebar } from "../components/sidebar/app-sidebar"
 import { SidebarProvider, SidebarTrigger, SidebarInset, SidebarRail } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
-import { Menu } from "lucide-react"
+import { Menu, Upload, Plus } from "lucide-react"
 
 interface Conversion {
   _id: string
@@ -27,6 +27,7 @@ const Dashboard: React.FC = () => {
   const [conversions, setConversions] = useState<Conversion[]>([])
   const [currentConversion, setCurrentConversion] = useState<Conversion | null>(null)
   const [loadingData, setLoadingData] = useState(false)
+  const [showUploadForm, setShowUploadForm] = useState(false)
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -35,6 +36,24 @@ const Dashboard: React.FC = () => {
       fetchConversions()
     }
   }, [isAuthenticated, loading, router])
+
+  // Effect to handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setShowUploadForm(true)
+      } else {
+        setShowUploadForm(!currentConversion)
+      }
+    }
+
+    // Initial setup
+    handleResize()
+
+    // Add event listener
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [currentConversion])
 
   const fetchConversions = async () => {
     setLoadingData(true)
@@ -68,6 +87,9 @@ const Dashboard: React.FC = () => {
         },
       })
       setCurrentConversion(response.data)
+      if (window.innerWidth < 768) {
+        setShowUploadForm(false)
+      }
       fetchConversions() // Refresh the list
     } catch (err) {
       console.error("Failed to fetch conversion details", err)
@@ -82,9 +104,16 @@ const Dashboard: React.FC = () => {
         },
       })
       setCurrentConversion(response.data)
+      if (window.innerWidth < 768) {
+        setShowUploadForm(false)
+      }
     } catch (err) {
       console.error("Failed to fetch conversion details", err)
     }
+  }
+
+  const toggleUploadForm = () => {
+    setShowUploadForm(!showUploadForm)
   }
 
   if (loading) {
@@ -96,7 +125,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={window.innerWidth >= 1024}>
       <div className="flex min-h-screen bg-[hsl(var(--background))]">
         <AppSidebar
           conversions={conversions}
@@ -106,41 +135,78 @@ const Dashboard: React.FC = () => {
           username={user?.name || "User"}
         />
 
-        <SidebarInset className="transition-all duration-300 ease-in-out bg-[hsl(var(--background))]">
-          <div className="p-6 w-full">
-            <header className="flex justify-between items-center mb-6">
+        <SidebarInset className="transition-all duration-300 ease-in-out bg-[hsl(var(--background))] w-full">
+          <div className="p-3 sm:p-6 w-full">
+            <header className="flex justify-between items-center mb-4">
               <div>
-                <h1 className="text-3xl font-bold">PDF to XML Converter</h1>
-                <p className="text-muted-foreground">Convert your PDF documents to structured XML format</p>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">PDF to XML Converter</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Convert your PDF documents to structured XML format
+                </p>
               </div>
-              <SidebarTrigger className="md:hidden">
-                <Menu className="h-6 w-6" />
-              </SidebarTrigger>
+              <div className="flex items-center gap-2">
+                {!showUploadForm && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="md:hidden flex items-center" 
+                    onClick={toggleUploadForm}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    <span className="hidden xs:inline">New</span>
+                  </Button>
+                )}
+                <SidebarTrigger className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                </SidebarTrigger>
+              </div>
             </header>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-  <div className="md:col-span-1">
-    <FileUpload onUploadSuccess={handleUploadSuccess} />
-  </div>
+            <div className="flex flex-col lg:flex-row gap-4">
+              {showUploadForm && (
+                <div className="w-full lg:w-1/3 xl:w-1/4">
+                  <FileUpload onUploadSuccess={handleUploadSuccess} />
+                  {window.innerWidth < 768 && currentConversion && (
+                    <div className="flex justify-center mt-4">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={toggleUploadForm}
+                      >
+                        Hide Upload Form
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
 
-  <div className="md:col-span-1 lg:col-span-2">
-    {currentConversion ? (
-      <ConversionResult conversion={currentConversion} />
-    ) : (
-      <div className="flex items-center justify-center h-full min-h-[300px] bg-[hsl(var(--card))] rounded-lg border-2 border-dashed border-[hsl(var(--border))]">
-        <div className="text-center p-6">
-          <h3 className="text-lg font-medium text-[hsl(var(--card-foreground))] mb-2">No conversion selected</h3>
-          <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4">
-            Upload a PDF file or select a previous conversion from the sidebar
-          </p>
-          <Button variant="outline" onClick={() => document.getElementById("pdf")?.click()}>
-            Upload a PDF
-          </Button>
-        </div>
-      </div>
-    )}
-  </div>
-</div>
+              <div className={`w-full ${showUploadForm ? 'lg:w-2/3 xl:w-3/4' : 'w-full'}`}>
+                {currentConversion ? (
+                  <ConversionResult conversion={currentConversion} />
+                ) : (
+                  <div className="flex items-center justify-center h-full min-h-[250px] sm:min-h-[300px] bg-[hsl(var(--card))] rounded-lg border-2 border-dashed border-[hsl(var(--border))]">
+                    <div className="text-center p-4 sm:p-6">
+                      <h3 className="text-base sm:text-lg font-medium text-[hsl(var(--card-foreground))] mb-2">
+                        No conversion selected
+                      </h3>
+                      <p className="text-xs sm:text-sm text-[hsl(var(--muted-foreground))] mb-4">
+                        Upload a PDF file or select a previous conversion from the sidebar
+                      </p>
+                      <Button variant="outline" onClick={() => {
+                        if (!showUploadForm) {
+                          setShowUploadForm(true)
+                        } else {
+                          document.getElementById("pdf")?.click()
+                        }
+                      }}>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload a PDF
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </SidebarInset>
         <SidebarRail />
@@ -150,4 +216,3 @@ const Dashboard: React.FC = () => {
 }
 
 export default Dashboard
-

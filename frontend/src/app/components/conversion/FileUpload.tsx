@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle, Upload } from "lucide-react"
-import { Progress } from "@/components/ui/progress"
 
 interface FileUploadProps {
   onUploadSuccess: (conversionId: string) => void
@@ -84,13 +83,15 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
 
   return (
     <Card className="bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] border-[hsl(var(--border))]">
-      <CardHeader>
-        <CardTitle className="text-[hsl(var(--card-foreground))]">Upload PDF for Conversion</CardTitle>
-        <CardDescription className="text-[hsl(var(--muted-foreground))]">
+      <CardHeader className="px-4 py-4 sm:px-6 sm:py-6">
+        <CardTitle className="text-lg sm:text-xl text-[hsl(var(--card-foreground))]">
+          Upload PDF for Conversion
+        </CardTitle>
+        <CardDescription className="text-sm text-[hsl(var(--muted-foreground))]">
           Convert your PDF documents to structured XML format
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
         {error && (
           <Alert variant="destructive" className="mb-4 border-[hsl(var(--destructive))]">
             <AlertCircle className="h-4 w-4" />
@@ -102,27 +103,31 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="pdf" className="text-[hsl(var(--foreground))]">PDF File</Label>
+              <Label htmlFor="pdf" className="text-[hsl(var(--foreground))]">
+                PDF File
+              </Label>
               <div className="flex items-center gap-2">
-                <div className="relative flex-1">
+                <div className="relative w-full">
                   <Input
                     id="pdf"
                     type="file"
                     onChange={handleFileChange}
                     accept="application/pdf"
-                    className="cursor-pointer bg-[hsl(var(--background))] border-[hsl(var(--input))]"
+                    className="cursor-pointer bg-[hsl(var(--background))] border-[hsl(var(--input))] text-sm w-full"
                   />
                 </div>
               </div>
               {file && (
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                <p className="text-xs sm:text-sm text-[hsl(var(--muted-foreground))] break-words">
                   Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                 </p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="structure-level" className="text-[hsl(var(--foreground))]">Structure Level</Label>
+              <Label htmlFor="structure-level" className="text-[hsl(var(--foreground))]">
+                Structure Level
+              </Label>
               <Select
                 value={structureLevel}
                 onValueChange={(value) => setStructureLevel(value as "basic" | "advanced")}
@@ -142,7 +147,12 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
 
             {loading && (
               <div className="space-y-2">
-                <Progress value={progress} className="bg-[hsl(var(--secondary))]" />
+                <div className="h-2 w-full bg-[hsl(var(--secondary))] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[hsl(var(--primary))] transition-all duration-300 ease-in-out"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
                 <p className="text-xs text-center text-[hsl(var(--muted-foreground))]">
                   {progress < 100 ? `Uploading: ${progress}%` : "Processing document..."}
                 </p>
@@ -150,9 +160,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
             )}
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full mt-4 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]" 
+          <Button
+            type="submit"
+            className="w-full mt-4 bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]"
             disabled={loading || !file}
           >
             {loading ? (
@@ -160,7 +170,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadSuccess }) => {
             ) : (
               <>
                 <Upload className="mr-2 h-4 w-4" />
-                Convert to XML
+                <span>Convert to XML</span>
               </>
             )}
           </Button>

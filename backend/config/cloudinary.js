@@ -2,34 +2,14 @@
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
-
-cloudinary.config({
-  cloud_name: "",
-  api_key: "",
-  api_secret: "",
+require('dotenv').config();
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Log Cloudinary connection status
-// console.log('Cloudinary configuration loaded:', 
-//   process.env.CLOUDINARY_CLOUD_NAME ? 'Cloud name is set' : 'Cloud name is MISSING',
-//   process.env.CLOUDINARY_API_KEY ? 'API key is set' : 'API key is MISSING',
-//   process.env.CLOUDINARY_API_SECRET ? 'API secret is set' : 'API secret is MISSING'
-// );
 
-// const storage = new CloudinaryStorage({
-//   cloudinary: cloudinary,
-//   params: {
-//     folder: 'pdf-converter',
-//     resource_type: 'raw',
-//     format: 'pdf',
-//     public_id: (req, file) => {
-//       // Generate a unique name for the uploaded file
-//       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-//       const filename = file.originalname.replace(/\.[^/.]+$/, "");
-//       return `${filename}-${uniqueSuffix}`;
-//     }
-//   }
-// });
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {

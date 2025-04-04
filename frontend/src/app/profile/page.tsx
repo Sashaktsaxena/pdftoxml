@@ -31,22 +31,22 @@ export default function ProfilePage() {
     }
   }, [user, loading, router, token]);
 
-  const fetchConversions = async () => {
-    setLoadingData(true);
-    try {
-      const response = await fetch('/api/conversions', {
-        headers: {
-          'x-auth-token': token,
-        },
-      });
-      const data = await response.json();
-      setConversions(data);
-    } catch (err) {
-      console.error('Failed to fetch conversions', err);
-    } finally {
-      setLoadingData(false);
-    }
-  };
+  // const fetchConversions = async () => {
+  //   setLoadingData(true);
+  //   try {
+  //     const response = await fetch('/api/conversions', {
+  //       headers: {
+  //         'x-auth-token': token,
+  //       },
+  //     });
+  //     const data = await response.json();
+  //     setConversions(data);
+  //   } catch (err) {
+  //     console.error('Failed to fetch conversions', err);
+  //   } finally {
+  //     setLoadingData(false);
+  //   }
+  // };
 
   const handleConversionSelect = (conversionId) => {
     // Navigate to dashboard with the selected conversion
